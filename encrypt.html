@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Encrypt</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>Encrypt Your Picture</h1>
+    <div class="drop-zone" id="dropZ">
+      <i class="fa fa-cloud-upload"></i>
+      <div>Drag and drop your file here</div>
+      <span>OR</span>
+      <div class="select-file">
+        <label for="file" class="btn">Select File</label>
+        <input type="file" accept="image/*" id="file" onchange="loadFile(event)">
+      </div>
+      <p>File size limit: 10 MB</p>
+    </div>
+    <div class="image-preview">
+      <img id="output" alt="Image Preview" />
+    </div>
+    <div class="input-group">
+      <input type="text" id="secret" placeholder="Enter your secret key" required>
+      <button class="btn" onclick="encryptToDES()">Encrypt</button>
+    </div>
+  </div>
+
+  <script>
+    var data;
+    function loadFile(event) {
+      var image = document.getElementById('output');
+      image.src = URL.createObjectURL(event.target.files[0]);
+      image.style.display = 'block';
+    }
+
+    document.getElementById('output').addEventListener('load', function() {
+      var canvas = document.createElement('canvas');
+      var ctx = canvas.getContext('2d');
+      canvas.height = this.naturalHeight;
+      canvas.width = this.naturalWidth;
+      ctx.drawImage(this, 0, 0);
+      data = canvas.toDataURL('image/jpeg');
+    });
+
+    function encryptToDES() {
+      var secretKey = document.getElementById('secret').value;
+      if (secretKey) {
+        var fileName = "encrypted_image.txt";
+        var plainText = data;
+        var encryptedText = CryptoJS.TripleDES.encrypt(plainText, secretKey).toString();
+        saveAs(new File([encryptedText], fileName, { type: "text/plain;charset=utf-8" }));
+      } else {
+        alert("Please enter your secret key!");
+      }
+    }
+  </script>
+</body>
+</html>

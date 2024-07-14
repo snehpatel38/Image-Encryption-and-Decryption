@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Decrypt</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>Decrypt Your File</h1>
+    <div class="drop-zone" id="dropZ">
+      <i class="fa fa-cloud-upload"></i>
+      <div>Drag and drop your encrypted file here</div>
+      <span>OR</span>
+      <div class="select-file">
+        <label for="file" class="btn">Select File</label>
+        <input type="file" id="file" onchange="previewFile()">
+      </div>
+      <p>File size limit: 10 MB</p>
+    </div>
+    <div class="decryption-zone">
+      <textarea id="content" class="result" rows="10" placeholder="Decrypted content will appear here..."></textarea>
+      <div class="input-group">
+        <input type="text" id="secret" placeholder="Enter your secret key" required>
+        <button class="btn" onclick="decryptFromDES()">Decrypt</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function previewFile() {
+      const content = document.getElementById('content');
+      const [file] = document.getElementById('file').files;
+      const reader = new FileReader();
+      reader.addEventListener("load", () => {
+        content.value = reader.result;
+      }, false);
+
+      if (file) {
+        reader.readAsText(file);
+      }
+    }
+
+    function decryptFromDES() {
+      const secretKey = document.getElementById('secret').value;
+      if (secretKey) {
+        const encryptedText = document.getElementById('content').value;
+        try {
+          const decryptedText = CryptoJS.TripleDES.decrypt(encryptedText, secretKey).toString(CryptoJS.enc.Utf8);
+          const element = document.createElement('a');
+          element.setAttribute('href', `data:text/plain;charset=utf-8,${encodeURIComponent(decryptedText)}`);
+          element.setAttribute('download', 'decrypted_image.jpeg');
+          element.style.display = 'none';
+          document.body.appendChild(element);
+          element.click();
+          document.body.removeChild(element);
+        } catch (err) {
+          alert("Error in document or secret key!");
+        }
+      } else {
+        alert("Please enter your secret key!");
+      }
+    }
+
+    // Clear the secret key input field on page load
+    window.onload = function() {
+      document.getElementById('secret').value = '';
+    }
+  </script>
+</body>
+</html>
